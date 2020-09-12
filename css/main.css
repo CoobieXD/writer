@@ -105,7 +105,8 @@ main {
 
 .pencil {
 	margin: 60px auto;
-	zoom: 0.85;
+	transform: scale(0.65);
+	transform-origin: top center;
 	width: 36px;
 	height: 520px;
 	border-radius: 36px;
@@ -157,7 +158,8 @@ main {
 
 .airpod_l {
 	transform: rotate(-15deg);
-	zoom: 1.2;
+	transform: rotate(-15deg) scale(1.2);
+	transform-origin: top left;
 	position: absolute;
 	top: 120px;
 	left: 94px;
@@ -195,8 +197,8 @@ main {
 }
 
 .airpod_r {
-	transform: rotate(35deg);
-	zoom: 1.2;
+	transform: rotate(35deg) scale(1.2);
+	transform-origin: top left;
 	position: absolute;
 	top: 20px;
 	left: 43px;
