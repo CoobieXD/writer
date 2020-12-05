@@ -1,3 +1,11 @@
+:root {
+	--color-primary: #1476bb;
+	--color-primary-alt: #149cbb;
+	--color-clipboard: #1482bb;
+	--shadow-neumorphic-light: rgba(255,255,255,0.3);
+	--shadow-neumorphic-dark: rgba(0,0,0,0.05);
+}
+
 html {
 	height: 100%;
 }
@@ -112,7 +120,7 @@ main {
 	border-radius: 36px;
 	background: linear-gradient(to left, #d4d4d4 0%, #ffffff 100%);
 	padding: 12px 0 16px;
-	box-shadow: -5px -5px 10px rgba(255,255,255,0.35), 10px 10px 10px rgba(0,0,0,0.05);
+	box-shadow: -5px -5px 10px var(--shadow-neumorphic-light), 10px 10px 10px var(--shadow-neumorphic-dark);
 }
 
 .pencil:before {
@@ -241,7 +249,7 @@ main {
 
 .clipboard {
 	padding: 12px 12px 15px 12px;
-	background: #1482bb;
+	background: var(--color-clipboard);
 	border-radius: 0 14px 14px 0;
 	position: absolute;
 	box-shadow: -10px -10px 15px rgba(255, 255, 255, 0.35), 10px 10px 10px rgba(0,0,0,0.1);
@@ -307,7 +315,7 @@ main {
 }
 
 footer {
-	color: #1476bb;
+	color: var(--color-primary);
 	text-align: center;
 	font-family: sans-serif;
 	padding: 12px;
