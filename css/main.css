@@ -1,25 +1,25 @@
 :root {
 	--color-primary: #1476bb;
 	--color-primary-alt: #149cbb;
-	--color-clipboard: #1482bb;
-	--shadow-neumorphic-light: rgba(255,255,255,0.3);
-	--shadow-neumorphic-dark: rgba(0,0,0,0.05);
+	--color-clipboard: #5a7a9e;
+	--shadow-neumorphic-light: rgba(0, 0, 0, 0.04);
+	--shadow-neumorphic-dark: rgba(0, 0, 0, 0.08);
 }
 
 html {
-	height: 100%;
+	min-height: 100%;
 }
 
 body {
 	margin: 0;
-	height: 100%;
-	background: linear-gradient(45deg, #e5e9ea, #dcd9e6);
+	min-height: 100vh;
+	background: linear-gradient(135deg, #d0b8e0, #b8cfe6, #b8dbd4);
 }
 
 main {
 	padding: 30px 0;
 	margin: 0 auto;
-	height: 100%;
+	min-height: 100vh;
 	width: 1280px;
 }
 
@@ -37,8 +37,8 @@ main {
 	padding: 3px;
 	float: right;
 	border-radius: 27px;
-	background: linear-gradient(135deg, rgba(255,255,255,1), rgba(0,0,0,0.1));
-	box-shadow: -15px -15px 15px rgba(255,255,255,0.3), 15px 15px 15px rgba(0,0,0,0.05);
+	background: linear-gradient(315deg, #b08ec8, #7ea8d0, #7ec8b8);
+	box-shadow: -15px -15px 15px rgba(0,0,0,0.04), 15px 15px 15px rgba(0,0,0,0.1);
 }
 
 .ipad {
@@ -157,7 +157,7 @@ main {
 
 .airpods {
 	display: none;
-	box-shadow: -7px -5px 10px rgba(255,255,255,0.3), 7px 5px 10px rgba(0,0,0,0.03);
+	box-shadow: -7px -5px 10px rgba(0,0,0,0.04), 7px 5px 10px rgba(0,0,0,0.06);
 	background: linear-gradient(to right, #fff 40%, #d8d8d8 100%);
 	border-bottom: 4px solid #999;
 	height: 100px;
@@ -188,7 +188,7 @@ main {
 	padding: 14px 0 0 4px;
 	font-size: 11px;
 	box-sizing: border-box;
-	box-shadow: -7px -5px 10px rgba(255,255,255,0.3), 7px 5px 10px rgba(0,0,0,0.03);
+	box-shadow: -7px -5px 10px rgba(0,0,0,0.04), 7px 5px 10px rgba(0,0,0,0.06);
 }
 
 .airpod_l:after {
@@ -227,7 +227,7 @@ main {
 	padding: 14px 0 0 4px;
 	font-size: 11px;
 	box-sizing: border-box;
-	box-shadow: -7px -5px 10px rgba(255,255,255,0.3), 7px 5px 10px rgba(0,0,0,0.03);
+	box-shadow: -7px -5px 10px rgba(0,0,0,0.04), 7px 5px 10px rgba(0,0,0,0.06);
 }
 
 .airpod_r:after {
@@ -252,7 +252,7 @@ main {
 	background: var(--color-clipboard);
 	border-radius: 0 14px 14px 0;
 	position: absolute;
-	box-shadow: -10px -10px 15px rgba(255, 255, 255, 0.35), 10px 10px 10px rgba(0,0,0,0.1);
+	box-shadow: -10px -10px 15px rgba(0,0,0,0.05), 10px 10px 10px rgba(0,0,0,0.12);
 }
 
 .paperclip {
