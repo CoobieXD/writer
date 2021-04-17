@@ -21,11 +21,12 @@ main {
 	margin: 0 auto;
 	min-height: 100vh;
 	width: 1280px;
+	display: flex;
+	align-items: flex-start;
 }
 
 .section {
-	height: 100%;
-	float: left;
+	min-height: 100%;
 }
 
 .middle {
@@ -35,7 +36,7 @@ main {
 .ipad_border {
 	margin-bottom: 24px;
 	padding: 3px;
-	float: right;
+	margin-left: auto;
 	border-radius: 27px;
 	background: linear-gradient(315deg, #b08ec8, #7ea8d0, #7ec8b8);
 	box-shadow: -15px -15px 15px rgba(0,0,0,0.04), 15px 15px 15px rgba(0,0,0,0.1);
@@ -45,7 +46,6 @@ main {
 	background: #f8f8f8;
 	border-radius: 24px;
 	padding: 20px 10px 10px 10px;
-	float: right;
 }
 
 .ipad:before {
