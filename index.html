@@ -18,7 +18,9 @@
 	<meta property="og:image" itemprop="image" name="twitter:image:src" content="https://coobiexd.github.io/writer/og_image.png">
 	<link rel="icon" href="/favicon-16x16.png" sizes="16x16">
 	<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
-	<meta name="theme-color" content="#ffffff">
+	<meta name="theme-color" content="#1476bb">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="default">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body class="loading">
@@ -30,8 +32,9 @@
 			<div class="ipad_border">
 				<div class="ipad">
 					<div class="ipad_screen">
-						<textarea id="text" placeholder="Введите текст.." autofocus></textarea>
-						<button id="write" disabled style="display: none;">Перевести в рукопись</button>
+						<label for="text" class="visually-hidden">Текст для перевода в рукопись</label>
+					<textarea id="text" placeholder="Введите текст.." autofocus></textarea>
+						<button id="write" aria-label="Перевести введённый текст в рукопись" disabled style="display: none;">Перевести в рукопись</button>
 					</div>
 					<div class="ipad_home"></div>
 				</div>
