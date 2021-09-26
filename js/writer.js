@@ -195,8 +195,21 @@ const Writer = (function() {
 		return text;
 	}
 
+	// Seeded PRNG (mulberry32)
+	let _random = Math.random;
+
+	function mulberry32(seed) {
+		return function() {
+			seed |= 0;
+			seed = seed + 0x6D2B79F5 | 0;
+			var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+			t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+			return ((t ^ t >>> 14) >>> 0) / 4294967296;
+		};
+	}
+
 	function mtRand(min, max) {
-		return Math.floor(min + Math.random() * (max + 1 - min));
+		return Math.floor(min + _random() * (max + 1 - min));
 	}
 
 	function pickLetterData(charData, letterCode, brevis) {
@@ -217,6 +230,13 @@ const Writer = (function() {
 		options = options || {};
 		const useCurv = options.curv || false;
 		const pad = CONFIG.LIST_PADDINGS;
+
+		// Seeded random: одинаковый seed → одинаковые символы
+		if (typeof options.seed === 'number') {
+			_random = mulberry32(options.seed);
+		} else {
+			_random = Math.random;
+		}
 
 		text = normalizeText(text);
 		text = isHyphen(text);
