@@ -242,6 +242,7 @@ const Writer = (function() {
 		text = isHyphen(text);
 
 		const words = text.split(' ');
+		const skippedChars = new Set();
 
 		let list = 0;
 		const post = [{}];
@@ -262,7 +263,7 @@ const Writer = (function() {
 				const letter_code = wordCodes[k];
 				if (letter_code !== '0009' && letter_code !== '000a' && letter_code !== '0020' && letter_code !== '00ad') {
 					const pick = pickLetterData(charData, letter_code, brevis);
-					if (!pick) { picks.push(null); continue; }
+					if (!pick) { skippedChars.add(String.fromCodePoint(parseInt(letter_code, 16))); picks.push(null); continue; }
 					picks.push(pick);
 					const d = pick.data;
 					word_width += Math.round(d[2] - (d[5] || 0) - (d[6] || 0) * 0.9 - d[2] * 0.1);
@@ -375,11 +376,12 @@ const Writer = (function() {
 			offset_x = offset_x + CONFIG.SPACE_WIDTH;
 		}
 
-		return post;
+		return { pages: post, skippedChars: Array.from(skippedChars) };
 	}
 
 	return {
-		generateList: generateList
+		generateList: generateList,
+		CONFIG: CONFIG
 	};
 
 })();
