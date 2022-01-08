@@ -351,7 +351,7 @@ const Writer = (function() {
 				// Soft hyphen
 				if (cut === 1 && letter_code === '00ad') {
 					const nextPick = picks[k + 1];
-					if (offset_x + (nextPick ? nextPick.data[2] : 0) >= CONFIG.LIST_WIDTH - pad[1] - 20) {
+					if (offset_x + (nextPick && nextPick.data ? nextPick.data[2] : 0) >= CONFIG.LIST_WIDTH - pad[1] - 20) {
 						const hyphen_code = '002d';
 						const hyphen_part = getPartByCode(hyphen_code);
 						const hyphen_data = charData[hyphen_part][hyphen_code][mtRand(0, charData[hyphen_part][hyphen_code].length - 1)];
