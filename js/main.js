@@ -1,4 +1,5 @@
-const dpi = '300';
+const dpi = 300;
+const BASE_DPI = 600;
 const canvas = document.getElementById('canvas');
 const sprites = {};
 
@@ -18,7 +19,7 @@ const sendText = function() {
 		options.curv = true;
 	}
 	const lists = Writer.generateList(text, spriteData, options);
-	loadSprites(lists[0]);
+	loadSprites(lists.pages[0]);
 };
 
 const loadSprites = function(data) {
@@ -48,18 +49,24 @@ const loadSprites = function(data) {
 	});
 };
 
-const renderList = function(data) {
-	const canvas_ctx = canvas.getContext('2d');
-	const r = dpi / 600;
-	canvas.width = 4960 * r;
-	canvas.height = 7016 * r;
-	canvas_ctx.fillStyle = "#fff";
-	canvas_ctx.fillRect(0, 0, canvas.width, canvas.height);
+// Рендер одной страницы на произвольный canvas
+const renderPageToCanvas = function(data, target) {
+	target = target || canvas;
+	const ctx = target.getContext('2d');
+	const r = dpi / BASE_DPI;
+	target.width = Writer.CONFIG.LIST_WIDTH * r;
+	target.height = Writer.CONFIG.LIST_HEIGHT * r;
+	ctx.fillStyle = "#fff";
+	ctx.fillRect(0, 0, target.width, target.height);
 	for (const [key, items] of Object.entries(data)) {
 		for (const item of items) {
-			canvas_ctx.drawImage(sprites[key], item[2][0]*r, item[2][1]*r, item[2][2]*r, item[2][3]*r, item[0]*r, item[1]*r, item[2][2]*r, item[2][3]*r);
+			ctx.drawImage(sprites[key], item[2][0]*r, item[2][1]*r, item[2][2]*r, item[2][3]*r, item[0]*r, item[1]*r, item[2][2]*r, item[2][3]*r);
 		}
 	}
+};
+
+const renderList = function(data) {
+	renderPageToCanvas(data);
 	showList();
 };
 
