@@ -12,14 +12,24 @@ const clipboardEl = document.querySelector('.clipboard');
 document.body.classList.remove('loading');
 writeBtn.disabled = false;
 
+let isProcessing = false;
+let currentPages = [];
+let currentPageIndex = 0;
+let currentSeed = (Math.random() * 4294967296) >>> 0;
+
 const sendText = function() {
+	if (isProcessing) return;
+	if (!textEl.value.trim()) return;
+	isProcessing = true;
 	const text = textEl.value;
-	const options = {};
+	const options = { seed: currentSeed };
 	if (window.location.search.indexOf('curv') !== -1) {
 		options.curv = true;
 	}
-	const lists = Writer.generateList(text, spriteData, options);
-	loadSprites(lists.pages[0]);
+	const result = Writer.generateList(text, spriteData, options);
+	currentPages = result.pages;
+	currentPageIndex = 0;
+	loadSprites(currentPages[0]);
 };
 
 const loadSprites = function(data) {
@@ -77,13 +87,12 @@ const showList = function() {
 	clipboardEl.classList.remove('loading');
 	document.body.classList.remove('loading');
 	writeBtn.disabled = false;
+	isProcessing = false;
 };
 
-// "Перевести в рукопись"
+// "Перевести в рукопись" — сбрасывает seed
 writeBtn.addEventListener('click', function() {
-	if (window.innerWidth < 1200) {
-		document.body.classList.add('loading');
-	}
+	currentSeed = (Math.random() * 4294967296) >>> 0;
 	writeBtn.disabled = true;
 	clipboardEl.classList.add('loading');
 	sendText();
@@ -100,6 +109,7 @@ textEl.addEventListener('keydown', function(e) {
 		this.selectionStart = this.selectionEnd = start + 1;
 	}
 	if (e.ctrlKey && e.key === 'Enter') {
+		currentSeed = (Math.random() * 4294967296) >>> 0;
 		writeBtn.disabled = true;
 		clipboardEl.classList.add('loading');
 		sendText();
@@ -111,9 +121,4 @@ textEl.addEventListener('input', function() {
 	writeBtn.style.display = textEl.value !== '' ? '' : 'none';
 });
 
-// Скрыть лист на мобильных по клику
-listEl.addEventListener('click', function() {
-	if (window.innerWidth < 1200) {
-		listEl.style.display = 'none';
-	}
-});
+
