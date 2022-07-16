@@ -6,9 +6,36 @@ const sprites = {};
 const textEl = document.getElementById('text');
 const writeBtn = document.getElementById('write');
 const listEl = document.getElementById('list');
-const listImgEl = document.getElementById('list_img');
 const clipboardEl = document.querySelector('.clipboard');
 
+// Рукописный плейсхолдер на листе при пустом textarea
+const PLACEHOLDER_TEXT = 'Привет! Это Писец — генератор рукописных конспектов.\n\nКак пользоваться:\n\t1. Введите или вставьте текст в поле слева\n\t2. Конспект появится здесь автоматически\n\t3. Нажмите "Скачать" чтобы сохранить как картинку, или "PDF" для всех страниц\n\nСоветы:\n\tCtrl+Enter — перегенерировать с новым почерком\n\tTab — вставить отступ в тексте\n\tМожно перетащить .txt файл прямо в поле ввода\n\nУдачи на парах :)';
+let placeholderRendered = false;
+
+const renderPlaceholder = function() {
+	const result = Writer.generateList(PLACEHOLDER_TEXT, spriteData, { seed: 42 });
+	const data = result.pages[0];
+	const needed = Object.keys(data).filter(function(name) { return !sprites.hasOwnProperty(name); });
+	if (needed.length === 0) {
+		renderPageToCanvas(data);
+		placeholderRendered = true;
+		return;
+	}
+	Promise.all(needed.map(function(name) {
+		return new Promise(function(resolve, reject) {
+			var img = new Image();
+			img.onload = function() { resolve(); };
+			img.onerror = function() { reject(); };
+			img.src = './assets/sprites/kate/' + dpi + 'dpi/' + name + '.png';
+			sprites[name] = img;
+		});
+	})).then(function() {
+		renderPageToCanvas(data);
+		placeholderRendered = true;
+	});
+};
+
+renderPlaceholder();
 document.body.classList.remove('loading');
 writeBtn.disabled = false;
 
@@ -54,7 +81,35 @@ const loadSprites = function(data) {
 	}).catch(function(err) {
 		console.error(err);
 		clipboardEl.classList.remove('loading');
-		document.body.classList.remove('loading');
+		// Рукописный плейсхолдер на листе при пустом textarea
+const PLACEHOLDER_TEXT = 'Привет! Это Писец — генератор рукописных конспектов.\n\nКак пользоваться:\n\t1. Введите или вставьте текст в поле слева\n\t2. Конспект появится здесь автоматически\n\t3. Нажмите "Скачать" чтобы сохранить как картинку, или "PDF" для всех страниц\n\nСоветы:\n\tCtrl+Enter — перегенерировать с новым почерком\n\tTab — вставить отступ в тексте\n\tМожно перетащить .txt файл прямо в поле ввода\n\nУдачи на парах :)';
+let placeholderRendered = false;
+
+const renderPlaceholder = function() {
+	const result = Writer.generateList(PLACEHOLDER_TEXT, spriteData, { seed: 42 });
+	const data = result.pages[0];
+	const needed = Object.keys(data).filter(function(name) { return !sprites.hasOwnProperty(name); });
+	if (needed.length === 0) {
+		renderPageToCanvas(data);
+		placeholderRendered = true;
+		return;
+	}
+	Promise.all(needed.map(function(name) {
+		return new Promise(function(resolve, reject) {
+			var img = new Image();
+			img.onload = function() { resolve(); };
+			img.onerror = function() { reject(); };
+			img.src = './assets/sprites/kate/' + dpi + 'dpi/' + name + '.png';
+			sprites[name] = img;
+		});
+	})).then(function() {
+		renderPageToCanvas(data);
+		placeholderRendered = true;
+	});
+};
+
+renderPlaceholder();
+document.body.classList.remove('loading');
 		writeBtn.disabled = false;
 	});
 };
@@ -81,11 +136,37 @@ const renderList = function(data) {
 };
 
 const showList = function() {
-	listImgEl.style.display = 'none';
-	canvas.style.display = 'block';
 	listEl.style.display = '';
 	clipboardEl.classList.remove('loading');
-	document.body.classList.remove('loading');
+	// Рукописный плейсхолдер на листе при пустом textarea
+const PLACEHOLDER_TEXT = 'Привет! Это Писец — генератор рукописных конспектов.\n\nКак пользоваться:\n\t1. Введите или вставьте текст в поле слева\n\t2. Конспект появится здесь автоматически\n\t3. Нажмите "Скачать" чтобы сохранить как картинку, или "PDF" для всех страниц\n\nСоветы:\n\tCtrl+Enter — перегенерировать с новым почерком\n\tTab — вставить отступ в тексте\n\tМожно перетащить .txt файл прямо в поле ввода\n\nУдачи на парах :)';
+let placeholderRendered = false;
+
+const renderPlaceholder = function() {
+	const result = Writer.generateList(PLACEHOLDER_TEXT, spriteData, { seed: 42 });
+	const data = result.pages[0];
+	const needed = Object.keys(data).filter(function(name) { return !sprites.hasOwnProperty(name); });
+	if (needed.length === 0) {
+		renderPageToCanvas(data);
+		placeholderRendered = true;
+		return;
+	}
+	Promise.all(needed.map(function(name) {
+		return new Promise(function(resolve, reject) {
+			var img = new Image();
+			img.onload = function() { resolve(); };
+			img.onerror = function() { reject(); };
+			img.src = './assets/sprites/kate/' + dpi + 'dpi/' + name + '.png';
+			sprites[name] = img;
+		});
+	})).then(function() {
+		renderPageToCanvas(data);
+		placeholderRendered = true;
+	});
+};
+
+renderPlaceholder();
+document.body.classList.remove('loading');
 	writeBtn.disabled = false;
 	isProcessing = false;
 };
