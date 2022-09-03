@@ -56,6 +56,11 @@ const sendText = function() {
 	const result = Writer.generateList(text, spriteData, options);
 	currentPages = result.pages;
 	currentPageIndex = 0;
+	// Предупреждение о неподдерживаемых символах
+	if (result.skippedChars.length > 0) {
+		showWarning('Символы без глифа пропущены: ' + result.skippedChars.join(' '));
+	}
+
 	loadSprites(currentPages[0]);
 };
 
@@ -171,6 +176,36 @@ document.body.classList.remove('loading');
 	isProcessing = false;
 };
 
+
+// Предупреждение о неподдерживаемых символах
+const showWarning = function(msg) {
+	let el = document.getElementById('char-warning');
+	if (!el) {
+		el = document.createElement('div');
+		el.id = 'char-warning';
+		clipboardEl.appendChild(el);
+	}
+	el.textContent = msg;
+	el.style.display = '';
+};
+
+const hideWarning = function() {
+	const el = document.getElementById('char-warning');
+	if (el) el.style.display = 'none';
+};
+
+// Сообщение об ошибке загрузки спрайтов
+const showError = function(msg) {
+	let el = document.getElementById('sprite-error');
+	if (!el) {
+		el = document.createElement('div');
+		el.id = 'sprite-error';
+		clipboardEl.appendChild(el);
+	}
+	el.textContent = msg;
+	el.style.display = '';
+};
+
 // "Перевести в рукопись" — сбрасывает seed
 writeBtn.addEventListener('click', function() {
 	currentSeed = (Math.random() * 4294967296) >>> 0;
@@ -197,9 +232,27 @@ textEl.addEventListener('keydown', function(e) {
 	}
 });
 
-// Показать/скрыть кнопку при вводе текста
+// Живой предпросмотр
+let previewTimer = null;
+
 textEl.addEventListener('input', function() {
-	writeBtn.style.display = textEl.value !== '' ? '' : 'none';
+	const hasText = textEl.value !== '';
+	writeBtn.style.display = hasText ? '' : 'none';
+
+	if (!hasText) {
+		// Сбросить к плейсхолдеру
+		clearTimeout(previewTimer);
+		hideWarning();
+		renderPlaceholder();
+		return;
+	}
+
+	var len = textEl.value.length;
+	var delay = len < 2000 ? 0 : Math.min(Math.floor((len - 2000) / 1000) * 100, 500);
+	clearTimeout(previewTimer);
+	previewTimer = setTimeout(function() {
+		sendText();
+	}, delay);
 });
 
 

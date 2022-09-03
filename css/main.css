@@ -371,3 +371,23 @@ footer {
 	}
 }
 
+
+#char-warning {
+	color: #ffdd57;
+	font-family: sans-serif;
+	font-size: 12px;
+	text-align: center;
+	padding: 6px 8px;
+}
+
+#sprite-error {
+	color: #ff6b6b;
+	font-family: sans-serif;
+	font-size: 13px;
+	text-align: center;
+	padding: 8px;
+	background: rgba(255,255,255,0.1);
+	border-radius: 6px;
+	margin-top: 8px;
+}
+
