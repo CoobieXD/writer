@@ -44,6 +44,25 @@ let currentPages = [];
 let currentPageIndex = 0;
 let currentSeed = (Math.random() * 4294967296) >>> 0;
 
+
+// Кеш отрендеренных страниц (pageIndex → ImageBitmap)
+const pageCache = new Map();
+
+// Создание offscreen/скрытого canvas для экспорта и предзагрузки
+const createOffCanvas = function(w, h) {
+	if (typeof OffscreenCanvas !== 'undefined') {
+		return new OffscreenCanvas(w, h);
+	}
+	var c = document.createElement('canvas');
+	c.width = w;
+	c.height = h;
+	return c;
+};
+
+const seedHash = function() {
+	return currentSeed.toString(16).padStart(8, '0').slice(0, 4);
+};
+
 const sendText = function() {
 	if (isProcessing) return;
 	if (!textEl.value.trim()) return;
@@ -137,6 +156,12 @@ const renderPageToCanvas = function(data, target) {
 
 const renderList = function(data) {
 	renderPageToCanvas(data);
+	// Кешируем отрендеренную страницу
+	if (!pageCache.has(currentPageIndex)) {
+		createImageBitmap(canvas).then(function(bmp) {
+			pageCache.set(currentPageIndex, bmp);
+		});
+	}
 	showList();
 };
 
@@ -204,6 +229,22 @@ const showError = function(msg) {
 	}
 	el.textContent = msg;
 	el.style.display = '';
+};
+
+
+// Навигация по страницам
+const goToPage = function(index) {
+	if (index < 0 || index >= currentPages.length) return;
+	currentPageIndex = index;
+	var cached = pageCache.get(index);
+	if (cached) {
+		var r = dpi / BASE_DPI;
+		canvas.width = Writer.CONFIG.LIST_WIDTH * r;
+		canvas.height = Writer.CONFIG.LIST_HEIGHT * r;
+		canvas.getContext('2d').drawImage(cached, 0, 0);
+		return;
+	}
+	loadSprites(currentPages[index]);
 };
 
 // "Перевести в рукопись" — сбрасывает seed

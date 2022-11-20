@@ -235,11 +235,12 @@ main {
 	background: var(--color-clipboard);
 	border-radius: 0 14px 14px 0;
 	position: absolute;
+	overflow: visible;
 	box-shadow: -10px -10px 15px rgba(0,0,0,0.05), 10px 10px 10px rgba(0,0,0,0.12);
 }
 
 .paperclip {
-	transform: rotate(45deg);
+	transform: rotate(45deg) scale(0.8);
 	position: absolute;
 	top: -4px;
 	right: 40px;
@@ -256,7 +257,7 @@ main {
 	content: '';
 	display: block;
 	position: absolute;
-	top: -18px;
+	top: -24px;
 	left: -2px;
 	height: 24px;
 	width: 16px;
@@ -278,10 +279,10 @@ main {
 }
 
 #list {
-	filter: brightness(0.97);
-	box-shadow: 0 3px 0 -1px #bbb, 0 5px 0 -2px #ddd, 0 7px 0 -3px #ccc;
-	width: 630px;
-	height: 890px;
+	position: relative;
+	filter: brightness(0.97) sepia(0.08);
+	box-shadow: 1px 1px 0 0px #bbb, 2px 2px 0 0px #ddd, 3px 3px 0 0px #ccc;
+	width: 600px;
 	background: #fff;
 }
 
