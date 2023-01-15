@@ -160,7 +160,10 @@ const renderList = function(data) {
 	if (!pageCache.has(currentPageIndex)) {
 		createImageBitmap(canvas).then(function(bmp) {
 			pageCache.set(currentPageIndex, bmp);
+			prefetchAdjacentPages();
 		});
+	} else {
+		prefetchAdjacentPages();
 	}
 	showList();
 };
@@ -242,9 +245,79 @@ const goToPage = function(index) {
 		canvas.width = Writer.CONFIG.LIST_WIDTH * r;
 		canvas.height = Writer.CONFIG.LIST_HEIGHT * r;
 		canvas.getContext('2d').drawImage(cached, 0, 0);
+		prefetchAdjacentPages();
 		return;
 	}
 	loadSprites(currentPages[index]);
+};
+
+// Анимированное перелистывание
+let pageAnimating = false;
+const animateToPage = function(index) {
+	if (index < 0 || index >= currentPages.length || pageAnimating) return;
+	if (index === currentPageIndex) return;
+	pageAnimating = true;
+	var dir = index > currentPageIndex ? -1 : 1;
+	var w = listEl.offsetWidth || 300;
+	// Показать подложку
+	if (typeof swipeUnderlay !== 'undefined') swipeUnderlay.style.display = '';
+	// Вылет текущей страницы
+	canvas.style.transition = 'transform 0.2s ease-in, opacity 0.2s ease-in';
+	canvas.style.transform = 'translateX(' + (dir * w) + 'px)';
+	canvas.style.opacity = '0';
+	setTimeout(function() {
+		goToPage(index);
+		// Влёт новой страницы
+		canvas.style.transition = 'none';
+		canvas.style.transform = 'translateX(' + (-dir * w * 0.3) + 'px)';
+		canvas.style.opacity = '0.3';
+		requestAnimationFrame(function() {
+			canvas.style.transition = 'transform 0.25s ease-out, opacity 0.25s ease-out';
+			canvas.style.transform = '';
+			canvas.style.opacity = '';
+			setTimeout(function() {
+				pageAnimating = false;
+				if (typeof swipeUnderlay !== 'undefined') swipeUnderlay.style.display = 'none';
+			}, 260);
+		});
+	}, 200);
+};
+
+// Предзагрузка соседних страниц в фоне
+const prefetchAdjacentPages = function() {
+	var indices = [currentPageIndex - 1, currentPageIndex + 1].filter(function(i) {
+		return i >= 0 && i < currentPages.length && !pageCache.has(i);
+	});
+	if (indices.length === 0) return;
+	var schedule = typeof requestIdleCallback !== 'undefined' ? requestIdleCallback : setTimeout;
+	indices.forEach(function(idx) {
+		schedule(function() {
+			if (pageCache.has(idx)) return;
+			// Загрузить спрайты для страницы если нужно
+			var data = currentPages[idx];
+			var needed = Object.keys(data).filter(function(name) { return !sprites.hasOwnProperty(name); });
+			var ready = needed.length === 0
+				? Promise.resolve()
+				: Promise.all(needed.map(function(name) {
+					return new Promise(function(resolve, reject) {
+						var img = new Image();
+						img.onload = function() { resolve(); };
+						img.onerror = function() { reject(); };
+						img.src = './assets/sprites/kate/' + dpi + 'dpi/' + name + '.png';
+						sprites[name] = img;
+					});
+				}));
+			ready.then(function() {
+				if (pageCache.has(idx)) return;
+				var r = dpi / BASE_DPI;
+				var offC = createOffCanvas(Writer.CONFIG.LIST_WIDTH * r, Writer.CONFIG.LIST_HEIGHT * r);
+				renderPageToCanvas(data, offC);
+				return createImageBitmap(offC);
+			}).then(function(bmp) {
+				if (bmp && !pageCache.has(idx)) pageCache.set(idx, bmp);
+			}).catch(function() {});
+		});
+	});
 };
 
 // "Перевести в рукопись" — сбрасывает seed
