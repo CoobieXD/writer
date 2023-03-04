@@ -392,3 +392,37 @@ footer {
 	margin-top: 8px;
 }
 
+
+/* Общий стиль стикера-закладки */
+.sticker-btn {
+	position: absolute;
+	right: -41px;
+	width: 40px;
+	padding: 14px 0;
+	background-image: linear-gradient(135deg, #fff6cc 0%, #ffe066 35%, #ffd633 100%);
+	color: #7a6200;
+	font-family: sans-serif;
+	font-size: 10px;
+	font-weight: 700;
+	text-decoration: none;
+	text-align: center;
+	writing-mode: vertical-rl;
+	text-orientation: mixed;
+	border: none;
+	border-radius: 0 7px 7px 0;
+	cursor: pointer;
+	box-shadow: 3px 1px 8px rgba(0,0,0,0.15);
+	z-index: 10;
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+	user-select: none;
+}
+
+.sticker-btn:hover:not(:disabled) {
+	transform: translateY(1px);
+	box-shadow: 3px 4px 12px rgba(0,0,0,0.22);
+}
+
+.sticker-btn:disabled {
+	visibility: hidden;
+}
+

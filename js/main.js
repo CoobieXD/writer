@@ -320,6 +320,38 @@ const prefetchAdjacentPages = function() {
 	});
 };
 
+// Мобильный тулбар для стикеров (внутри bottom sheet)
+const isMobile = function() { return window.innerWidth <= 1200; };
+
+const getSheetToolbar = function() {
+	let toolbar = document.querySelector('.sheet-toolbar');
+	if (!toolbar) {
+		toolbar = document.createElement('div');
+		toolbar.className = 'sheet-toolbar';
+		const rightSection = document.querySelector('.section.right');
+		const clipboard = rightSection.querySelector('.clipboard');
+		rightSection.insertBefore(toolbar, clipboard);
+	}
+	return toolbar;
+};
+
+// Создание стикера
+const createSticker = function(id, text) {
+	let el = document.getElementById(id);
+	if (!el) {
+		el = document.createElement('button');
+		el.id = id;
+		el.className = 'sticker-btn';
+		el.textContent = text;
+		if (isMobile()) {
+			getSheetToolbar().appendChild(el);
+		} else {
+			listEl.appendChild(el);
+		}
+	}
+	return el;
+};
+
 // "Перевести в рукопись" — сбрасывает seed
 writeBtn.addEventListener('click', function() {
 	currentSeed = (Math.random() * 4294967296) >>> 0;
