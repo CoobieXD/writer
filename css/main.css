@@ -426,3 +426,14 @@ footer {
 	visibility: hidden;
 }
 
+
+/* Стикеры пагинации */
+#page-prev {
+	top: calc(50% - 70px);
+}
+
+#page-next {
+	top: calc(50% + 20px);
+	right: -42px;
+}
+

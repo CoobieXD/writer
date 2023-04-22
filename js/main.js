@@ -202,6 +202,11 @@ renderPlaceholder();
 document.body.classList.remove('loading');
 	writeBtn.disabled = false;
 	isProcessing = false;
+
+	// Показать пагинацию если больше одной страницы
+	if (currentPages.length > 1) {
+		showPagination();
+	}
 };
 
 
@@ -239,6 +244,7 @@ const showError = function(msg) {
 const goToPage = function(index) {
 	if (index < 0 || index >= currentPages.length) return;
 	currentPageIndex = index;
+	updatePagination();
 	var cached = pageCache.get(index);
 	if (cached) {
 		var r = dpi / BASE_DPI;
@@ -352,6 +358,35 @@ const createSticker = function(id, text) {
 	return el;
 };
 
+
+// Пагинация стикерами
+const showPagination = function() {
+	const prevBtn = createSticker('page-prev', '\u2190');
+	prevBtn.onclick = function(e) { e.stopPropagation(); if (isMobile()) animateToPage(currentPageIndex - 1); else goToPage(currentPageIndex - 1); };
+	prevBtn.style.display = '';
+
+	const nextBtn = createSticker('page-next', '\u2192');
+	nextBtn.onclick = function(e) { e.stopPropagation(); if (isMobile()) animateToPage(currentPageIndex + 1); else goToPage(currentPageIndex + 1); };
+	nextBtn.style.display = '';
+
+	updatePagination();
+};
+
+const hidePagination = function() {
+	['page-prev', 'page-next'].forEach(function(id) {
+		const el = document.getElementById(id);
+		if (el) el.style.display = 'none';
+	});
+};
+
+const updatePagination = function() {
+	const prevBtn = document.getElementById('page-prev');
+	const nextBtn = document.getElementById('page-next');
+	if (!prevBtn) return;
+	prevBtn.disabled = currentPageIndex === 0;
+	nextBtn.disabled = currentPageIndex === currentPages.length - 1;
+};
+
 // "Перевести в рукопись" — сбрасывает seed
 writeBtn.addEventListener('click', function() {
 	currentSeed = (Math.random() * 4294967296) >>> 0;
@@ -388,6 +423,7 @@ textEl.addEventListener('input', function() {
 	if (!hasText) {
 		// Сбросить к плейсхолдеру
 		clearTimeout(previewTimer);
+		hidePagination();
 		hideWarning();
 		renderPlaceholder();
 		return;
