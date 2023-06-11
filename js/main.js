@@ -207,6 +207,8 @@ document.body.classList.remove('loading');
 	if (currentPages.length > 1) {
 		showPagination();
 	}
+	// Показать кнопки действий
+	showDownloadBtn();
 };
 
 
@@ -387,6 +389,20 @@ const updatePagination = function() {
 	nextBtn.disabled = currentPageIndex === currentPages.length - 1;
 };
 
+
+// Стикер скачивания
+const showDownloadBtn = function() {
+	const btn = createSticker('download-btn', 'Скачать');
+	btn.onclick = function(e) {
+		e.stopPropagation();
+		const link = document.createElement('a');
+		link.download = 'page-' + seedHash() + '-' + (currentPageIndex + 1) + '.png';
+		link.href = canvas.toDataURL('image/png');
+		link.click();
+	};
+	btn.style.display = '';
+};
+
 // "Перевести в рукопись" — сбрасывает seed
 writeBtn.addEventListener('click', function() {
 	currentSeed = (Math.random() * 4294967296) >>> 0;
@@ -426,6 +442,10 @@ textEl.addEventListener('input', function() {
 		hidePagination();
 		hideWarning();
 		renderPlaceholder();
+		['download-btn'].forEach(function(id) {
+			var el = document.getElementById(id);
+			if (el) el.style.display = 'none';
+		});
 		return;
 	}
 

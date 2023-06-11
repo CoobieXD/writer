@@ -437,3 +437,12 @@ footer {
 	right: -42px;
 }
 
+
+#download-btn {
+	top: 60px;
+}
+
+#download-btn::before {
+	display: none;
+}
+
