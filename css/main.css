@@ -446,3 +446,12 @@ footer {
 	display: none;
 }
 
+
+#pdf-btn {
+	top: 150px;
+}
+
+#pdf-btn::before {
+	display: none;
+}
+

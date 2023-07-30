@@ -209,6 +209,7 @@ document.body.classList.remove('loading');
 	}
 	// Показать кнопки действий
 	showDownloadBtn();
+	showPdfBtn();
 };
 
 
@@ -403,6 +404,56 @@ const showDownloadBtn = function() {
 	btn.style.display = '';
 };
 
+
+// Стикер PDF
+const showPdfBtn = function() {
+	const btn = createSticker('pdf-btn', 'PDF');
+	btn.onclick = function(e) {
+		e.stopPropagation();
+		if (typeof window.jspdf === 'undefined') return;
+		clipboardEl.classList.add('loading');
+		var jsPDF = window.jspdf.jsPDF;
+		var r = dpi / BASE_DPI;
+		var fullW = Writer.CONFIG.LIST_WIDTH * r;
+		var fullH = Writer.CONFIG.LIST_HEIGHT * r;
+		var pdfW = fullW;
+		var pdfH = fullH;
+		var pdfCanvas = document.createElement('canvas');
+		pdfCanvas.width = pdfW;
+		pdfCanvas.height = pdfH;
+		var pdfCtx = pdfCanvas.getContext('2d');
+		var offC = createOffCanvas(fullW, fullH);
+		var pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [pdfW, pdfH] });
+		var chain = Promise.resolve();
+		for (var i = 0; i < currentPages.length; i++) {
+			(function(idx) {
+				chain = chain.then(function() {
+					return new Promise(function(resolve) {
+						setTimeout(function() {
+							var cached = pageCache.get(idx);
+							if (cached) {
+								pdfCtx.drawImage(cached, 0, 0, pdfW, pdfH);
+							} else {
+								renderPageToCanvas(currentPages[idx], offC);
+								pdfCtx.drawImage(offC, 0, 0, pdfW, pdfH);
+							}
+							var dataUrl = pdfCanvas.toDataURL('image/jpeg', 0.75);
+							if (idx > 0) pdf.addPage([pdfW, pdfH]);
+							pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfW, pdfH);
+							resolve();
+						}, 0);
+					});
+				});
+			})(i);
+		}
+		chain.then(function() {
+			pdf.save('pages-' + seedHash() + '.pdf');
+			clipboardEl.classList.remove('loading');
+		});
+	};
+	btn.style.display = '';
+};
+
 // "Перевести в рукопись" — сбрасывает seed
 writeBtn.addEventListener('click', function() {
 	currentSeed = (Math.random() * 4294967296) >>> 0;
@@ -442,7 +493,7 @@ textEl.addEventListener('input', function() {
 		hidePagination();
 		hideWarning();
 		renderPlaceholder();
-		['download-btn'].forEach(function(id) {
+		['download-btn', 'pdf-btn'].forEach(function(id) {
 			var el = document.getElementById(id);
 			if (el) el.style.display = 'none';
 		});
