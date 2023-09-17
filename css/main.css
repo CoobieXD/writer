@@ -455,3 +455,12 @@ footer {
 	display: none;
 }
 
+
+#zip-btn {
+	top: 240px;
+}
+
+#zip-btn::before {
+	display: none;
+}
+

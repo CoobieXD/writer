@@ -210,6 +210,7 @@ document.body.classList.remove('loading');
 	// Показать кнопки действий
 	showDownloadBtn();
 	showPdfBtn();
+	showZipBtn();
 };
 
 
@@ -454,6 +455,61 @@ const showPdfBtn = function() {
 	btn.style.display = '';
 };
 
+
+// Стикер ZIP
+const showZipBtn = function() {
+	const btn = createSticker('zip-btn', 'ZIP');
+	btn.onclick = function(e) {
+		e.stopPropagation();
+		if (typeof JSZip === 'undefined') return;
+		clipboardEl.classList.add('loading');
+		var zip = new JSZip();
+		var r = dpi / BASE_DPI;
+		var fullW = Writer.CONFIG.LIST_WIDTH * r;
+		var fullH = Writer.CONFIG.LIST_HEIGHT * r;
+		var offC = createOffCanvas(fullW, fullH);
+		var chain = Promise.resolve();
+		for (var i = 0; i < currentPages.length; i++) {
+			(function(idx) {
+				chain = chain.then(function() {
+					var cached = pageCache.get(idx);
+					if (cached) {
+						offC.width = fullW;
+						offC.height = fullH;
+						offC.getContext('2d').drawImage(cached, 0, 0);
+					} else {
+						renderPageToCanvas(currentPages[idx], offC);
+					}
+					// OffscreenCanvas поддерживает convertToBlob, обычный — toBlob
+					if (offC.convertToBlob) {
+						return offC.convertToBlob({ type: 'image/png' }).then(function(blob) {
+							zip.file('page-' + seedHash() + '-' + (idx + 1) + '.png', blob);
+						});
+					}
+					return new Promise(function(resolve) {
+						offC.toBlob(function(blob) {
+							zip.file('page-' + seedHash() + '-' + (idx + 1) + '.png', blob);
+							resolve();
+						}, 'image/png');
+					});
+				});
+			})(i);
+		}
+		chain.then(function() {
+			return zip.generateAsync({ type: 'blob' });
+		}).then(function(blob) {
+			var url = URL.createObjectURL(blob);
+			var link = document.createElement('a');
+			link.href = url;
+			link.download = 'pages-' + seedHash() + '.zip';
+			link.click();
+			URL.revokeObjectURL(url);
+			clipboardEl.classList.remove('loading');
+		});
+	};
+	btn.style.display = '';
+};
+
 // "Перевести в рукопись" — сбрасывает seed
 writeBtn.addEventListener('click', function() {
 	currentSeed = (Math.random() * 4294967296) >>> 0;
@@ -493,7 +549,7 @@ textEl.addEventListener('input', function() {
 		hidePagination();
 		hideWarning();
 		renderPlaceholder();
-		['download-btn', 'pdf-btn'].forEach(function(id) {
+		['download-btn', 'pdf-btn', 'zip-btn'].forEach(function(id) {
 			var el = document.getElementById(id);
 			if (el) el.style.display = 'none';
 		});
