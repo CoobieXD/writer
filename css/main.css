@@ -305,67 +305,7 @@ footer {
 	padding: 12px;
 }
 
-@media screen and (max-width: 1200px) {
-	body {
-		overflow: hidden;
-	}
 
-	main {
-		width: 100%;
-	}
-
-	.ipad_screen {
-		width: 100%;
-		height: 100%;
-		position: absolute;
-		top: 0;
-		left: 0;
-		margin: 0;
-		border: 0;
-		padding: 0;
-	}
-
-	.ipad_screen textarea {
-		height: 100%;
-		border: 8px solid #ddd;
-	}
-
-	.pencil {
-		display: none;
-	}
-
-	#list {
-		display: none;
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		z-index: 9999;
-	}
-
-	#write {
-		bottom: 20px;
-		position: absolute;
-		right: 20px;
-	}
-
-	.left {
-		width: 100%;
-	}
-
-	.middle {
-		display: none;
-	}
-
-	.clipboard {
-		padding: 0;
-	}
-
-	.paperclip {
-		display: none;
-	}
-}
 @media (prefers-reduced-motion: reduce) {
 	.loading:after {
 		background-image: none;
@@ -462,5 +402,256 @@ footer {
 
 #zip-btn::before {
 	display: none;
+}
+
+
+/* Хэндл bottom sheet — скрыт на десктопе */
+.sheet-handle {
+	display: none;
+}
+
+@media screen and (max-width: 768px) {
+	.airpods {
+		display: none !important;
+	}
+
+	.ipad_border {
+		margin-left: 0;
+	}
+}
+
+@media screen and (max-width: 1200px) {
+	body {
+		overflow: hidden;
+	}
+
+	main {
+		width: 100%;
+		height: 100vh;
+		padding: 0;
+		flex-direction: column;
+	}
+
+	/* Textarea — на весь экран */
+	.left {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100vh;
+		min-height: 0;
+		z-index: 1;
+	}
+
+	.middle {
+		display: none;
+	}
+
+	/* Bottom sheet */
+	.right {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		height: 65vh;
+		min-height: 0;
+		border-radius: 0;
+		background: linear-gradient(135deg, #d0b8e0, #b8cfe6, #b8dbd4);
+		box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+		z-index: 100;
+		overflow: visible;
+		will-change: transform;
+		transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+	}
+
+	/* Стопка листов — зона захвата */
+	.sheet-handle {
+		display: block;
+		position: absolute;
+		bottom: 100%;
+		left: 0;
+		width: 100%;
+		height: 32px;
+		cursor: grab;
+		touch-action: none;
+		/* Синяя полоса планшета 8px сверху + стопка листов по 1px */
+		background:
+			linear-gradient(
+				to bottom,
+				var(--color-clipboard) 0px,
+				var(--color-clipboard) 12px,
+				transparent 8px
+			),
+			repeating-linear-gradient(
+				to bottom,
+				#bbb 0px,
+				#bbb 1px,
+				#fff 1px,
+				#fff 2px,
+				#ccc 2px,
+				#ccc 3px,
+				#f5f5f5 3px,
+				#f5f5f5 4px
+			);
+		background-position: 0 0, 0 8px;
+		background-size: 100% 60px, 100% 52px;
+		background-repeat: no-repeat, repeat;
+		box-shadow: 0 -3px 10px rgba(0,0,0,0.15);
+	}
+
+	.sheet-handle span {
+		display: none;
+	}
+
+	.sheet-handle:active {
+		cursor: grabbing;
+	}
+
+	.ipad_border {
+		margin: 0;
+		padding: 0;
+		border-radius: 0;
+		background: none;
+		box-shadow: none;
+		height: 100%;
+	}
+
+	.ipad {
+		border-radius: 0;
+		padding: 0;
+		height: 100%;
+		background: none;
+	}
+
+	.ipad:before {
+		display: none;
+	}
+
+	.ipad_screen {
+		width: auto;
+		height: auto;
+		margin: 12px;
+		border: 0;
+		padding: 0;
+		border-radius: 24px;
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		overflow: hidden;
+	}
+
+	.ipad_screen textarea {
+		font-size: 11px;
+		height: 100%;
+		padding: 16px 12px 60px;
+		padding-bottom: 60px;
+		border: none;
+		border-radius: 24px;
+	}
+
+	#write {
+		bottom: calc(65vh + 8px);
+		position: fixed;
+		right: 8px;
+		padding: 6px 16px;
+		font-size: 12px;
+		z-index: 101;
+	}
+
+	.clipboard {
+		padding: 0;
+		position: static;
+		box-shadow: none;
+		background: none;
+		border-radius: 0;
+		height: 100%;
+		overflow: auto hidden;
+	}
+
+	.paperclip {
+		display: none;
+	}
+
+	.pencil {
+		display: none;
+	}
+
+	#list {
+		position: static;
+		width: 100%;
+		height: auto;
+		filter: none;
+		box-shadow: none;
+	}
+
+	/* Контейнер ярлычков — между листами в стопке */
+	.sheet-toolbar {
+		position: absolute;
+		bottom: calc(100% + 30px);
+		left: 0;
+		width: 100%;
+		display: flex;
+		align-items: flex-end;
+		padding: 0 8px;
+		gap: 4px;
+		pointer-events: none;
+		z-index: 1;
+		box-sizing: border-box;
+		top: -14px;
+	}
+
+	/* Ярлычки-закладки между страниц */
+	.sticker-btn {
+		position: static;
+		display: block;
+		writing-mode: horizontal-tb;
+		text-orientation: initial;
+		width: auto;
+		font-size: 10px;
+		font-weight: 700;
+    padding: 10px 10px 8px;
+		flex-shrink: 0;
+		border-radius: 4px 4px 0 0;
+		box-shadow: -1px -1px 3px rgba(0,0,0,0.1);
+		pointer-events: auto;
+		vertical-align: bottom;
+	}
+
+	.sticker-btn:hover:not(:disabled) {
+		transform: translateY(-2px);
+	}
+
+	.sticker-btn::before {
+		display: inline !important;
+		margin-bottom: 0 !important;
+		margin-right: 3px;
+	}
+
+	.sticker-btn:disabled {
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	/* Навигация — справа через order */
+	#page-prev {
+		order: 10;
+		margin-left: auto;
+	}
+	#page-next {
+		order: 11;
+	}
+
+	#download-btn,
+	#pdf-btn,
+	#zip-btn,
+	#page-prev,
+	#page-next {
+		top: auto;
+		right: auto;
+		left: auto;
+		bottom: auto;
+	}
 }
 

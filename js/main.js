@@ -565,3 +565,95 @@ textEl.addEventListener('input', function() {
 });
 
 
+
+// Bottom sheet — перетаскивание на мобайле
+(function() {
+	const sheetEl = document.querySelector('.section.right');
+	const handleEl = document.querySelector('.sheet-handle');
+	if (!sheetEl || !handleEl) return;
+
+	const SHEET_HEIGHT_VH = 65;
+	const HANDLE_VISIBLE_PX = 90;
+	let sheetExpanded = true;
+	let dragStartY = 0;
+	let dragStartTranslate = 0;
+	let isDragging = false;
+	let dragStartTime = 0;
+
+	const getSheetHeight = function() {
+		return window.innerHeight * SHEET_HEIGHT_VH / 100;
+	};
+
+	const getCollapsedTranslate = function() {
+		return getSheetHeight() - HANDLE_VISIBLE_PX;
+	};
+
+	const setTransform = function(y, animate) {
+		if (animate) {
+			sheetEl.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+		} else {
+			sheetEl.style.transition = 'none';
+		}
+		sheetEl.style.transform = 'translateY(' + y + 'px)';
+	};
+
+	const expandSheet = function() {
+		sheetExpanded = true;
+		setTransform(0, true);
+	};
+
+	const collapseSheet = function() {
+		sheetExpanded = false;
+		setTransform(getCollapsedTranslate(), true);
+	};
+
+	// Обработка касаний на хэндле
+	handleEl.addEventListener('touchstart', function(e) {
+		if (!isMobile()) return;
+		isDragging = true;
+		dragStartY = e.touches[0].clientY;
+		dragStartTime = Date.now();
+		// Текущий translateY
+		var matrix = new DOMMatrix(getComputedStyle(sheetEl).transform);
+		dragStartTranslate = matrix.m42 || 0;
+		sheetEl.style.transition = 'none';
+	}, { passive: true });
+
+	handleEl.addEventListener('touchmove', function(e) {
+		if (!isDragging || !isMobile()) return;
+		var currentY = e.touches[0].clientY;
+		var delta = currentY - dragStartY;
+		var newTranslate = dragStartTranslate + delta;
+		// Clamp: не выше 0 (полностью раскрыт), не ниже collapsedTranslate
+		var maxTranslate = getCollapsedTranslate();
+		newTranslate = Math.max(0, Math.min(newTranslate, maxTranslate));
+		sheetEl.style.transform = 'translateY(' + newTranslate + 'px)';
+	}, { passive: true });
+
+	handleEl.addEventListener('touchend', function(e) {
+		if (!isDragging || !isMobile()) return;
+		isDragging = false;
+		var endY = e.changedTouches[0].clientY;
+		var delta = endY - dragStartY;
+		var elapsed = Date.now() - dragStartTime;
+		var velocity = Math.abs(delta) / elapsed; // px/ms
+		var threshold = getSheetHeight() * 0.3;
+
+		// Быстрый свайп (>0.5 px/ms) или прошли порог 30%
+		if (velocity > 0.5 || Math.abs(delta) > threshold) {
+			if (delta > 0) collapseSheet();
+			else expandSheet();
+		} else {
+			// Вернуть в предыдущее состояние
+			if (sheetExpanded) expandSheet();
+			else collapseSheet();
+		}
+	});
+
+	// Тап по хэндлу — переключить состояние
+	handleEl.addEventListener('click', function() {
+		if (!isMobile()) return;
+		if (sheetExpanded) collapseSheet();
+		else expandSheet();
+	});
+})();
