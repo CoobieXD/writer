@@ -655,3 +655,10 @@ footer {
 	}
 }
 
+
+/* Стиль textarea при перетаскивании файла */
+.dragover {
+	border: 3px dashed var(--color-primary) !important;
+	background: #e8f4fd !important;
+}
+
