@@ -657,3 +657,95 @@ textEl.addEventListener('input', function() {
 		else expandSheet();
 	});
 })();
+
+// Подложка-затемнение для свайпа (страница «снизу»)
+const swipeUnderlay = document.createElement('div');
+swipeUnderlay.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;background:#e8e4ec;display:none;z-index:0;';
+listEl.appendChild(swipeUnderlay);
+if (isMobile()) {
+	listEl.style.position = 'relative';
+	listEl.style.overflow = 'hidden';
+	canvas.style.position = 'relative';
+	canvas.style.zIndex = '1';
+}
+
+// Свайп между страницами на мобайле (с анимацией)
+let touchStartX = 0;
+let touchStartY = 0;
+let wasSwiped = false;
+let swipeLocked = false;
+let swipeAxis = null;
+
+listEl.addEventListener('touchstart', function(e) {
+	if (swipeLocked) return;
+	touchStartX = e.changedTouches[0].clientX;
+	touchStartY = e.changedTouches[0].clientY;
+	swipeAxis = null;
+	wasSwiped = false;
+	canvas.style.transition = 'none';
+	canvas.style.transform = '';
+	canvas.style.opacity = '';
+}, { passive: true });
+
+listEl.addEventListener('touchmove', function(e) {
+	if (swipeLocked || currentPages.length <= 1) return;
+	var dx = e.changedTouches[0].clientX - touchStartX;
+	var dy = e.changedTouches[0].clientY - touchStartY;
+	if (!swipeAxis) {
+		if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+			swipeAxis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+		}
+		return;
+	}
+	if (swipeAxis !== 'x') return;
+	// Не тянуть за границы (первая/последняя страница)
+	if (dx > 0 && currentPageIndex === 0) dx *= 0.3;
+	if (dx < 0 && currentPageIndex === currentPages.length - 1) dx *= 0.3;
+	swipeUnderlay.style.display = '';
+	canvas.style.transform = 'translateX(' + dx + 'px)';
+	canvas.style.opacity = Math.max(0.4, 1 - Math.abs(dx) / listEl.offsetWidth * 0.8);
+}, { passive: true });
+
+listEl.addEventListener('touchend', function(e) {
+	if (swipeLocked) return;
+	var diffX = e.changedTouches[0].clientX - touchStartX;
+	var diffY = e.changedTouches[0].clientY - touchStartY;
+	if (swipeAxis === 'x' && Math.abs(diffX) > 50 && currentPages.length > 1) {
+		var goNext = diffX < 0;
+		var goPrev = diffX > 0;
+		if ((goNext && currentPageIndex < currentPages.length - 1) ||
+			(goPrev && currentPageIndex > 0)) {
+			wasSwiped = true;
+			swipeLocked = true;
+			var targetIdx = goNext ? currentPageIndex + 1 : currentPageIndex - 1;
+			// Анимация вылета
+			var dir = goNext ? -1 : 1;
+			canvas.style.transition = 'transform 0.2s ease-in, opacity 0.2s ease-in';
+			canvas.style.transform = 'translateX(' + (dir * listEl.offsetWidth) + 'px)';
+			canvas.style.opacity = '0';
+			setTimeout(function() {
+				goToPage(targetIdx);
+				canvas.style.transition = 'none';
+				canvas.style.transform = 'translateX(' + (-dir * listEl.offsetWidth * 0.3) + 'px)';
+				canvas.style.opacity = '0.3';
+				requestAnimationFrame(function() {
+					canvas.style.transition = 'transform 0.25s ease-out, opacity 0.25s ease-out';
+					canvas.style.transform = '';
+					canvas.style.opacity = '';
+					setTimeout(function() { swipeLocked = false; swipeUnderlay.style.display = 'none'; }, 260);
+				});
+			}, 200);
+			return;
+		}
+	}
+	// Вернуть на место если не свайп
+	canvas.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
+	canvas.style.transform = '';
+	canvas.style.opacity = '';
+	setTimeout(function() { swipeUnderlay.style.display = 'none'; }, 200);
+});
+
+// Свайп — не считать кликом
+listEl.addEventListener('click', function() {
+	if (wasSwiped) { wasSwiped = false; }
+});
