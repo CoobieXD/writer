@@ -749,3 +749,26 @@ listEl.addEventListener('touchend', function(e) {
 listEl.addEventListener('click', function() {
 	if (wasSwiped) { wasSwiped = false; }
 });
+
+// Drag&drop .txt файлов на textarea
+textEl.addEventListener('dragover', function(e) {
+	e.preventDefault();
+	textEl.classList.add('dragover');
+});
+
+textEl.addEventListener('dragleave', function() {
+	textEl.classList.remove('dragover');
+});
+
+textEl.addEventListener('drop', function(e) {
+	e.preventDefault();
+	textEl.classList.remove('dragover');
+	const file = e.dataTransfer.files[0];
+	if (!file || !file.name.endsWith('.txt')) return;
+	const reader = new FileReader();
+	reader.onload = function() {
+		textEl.value = reader.result;
+		writeBtn.style.display = '';
+	};
+	reader.readAsText(file);
+});
