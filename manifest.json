@@ -1,0 +1,21 @@
+{
+	"name": "Писец — генератор рукописных конспектов",
+	"short_name": "Писец",
+	"start_url": "/writer/",
+	"display": "standalone",
+	"background_color": "#ffffff",
+	"theme_color": "#1476bb",
+	"icons": [
+		{
+			"src": "favicon-32x32.png",
+			"sizes": "32x32",
+			"type": "image/png"
+		},
+		{
+			"src": "og_image.png",
+			"sizes": "1200x630",
+			"type": "image/png",
+			"purpose": "any"
+		}
+	]
+}
