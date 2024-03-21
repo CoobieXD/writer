@@ -18,7 +18,6 @@
 	border: 0;
 }
 
-
 html {
 	min-height: 100%;
 }
@@ -93,7 +92,6 @@ main {
 }
 
 
-
 .pencil {
 	margin: 60px auto;
 	transform: scale(0.65);
@@ -148,7 +146,6 @@ main {
 }
 
 .airpod_l {
-	transform: rotate(-15deg);
 	transform: rotate(-15deg) scale(1.2);
 	transform-origin: top left;
 	position: absolute;
@@ -235,8 +232,8 @@ main {
 	background: var(--color-clipboard);
 	border-radius: 0 14px 14px 0;
 	position: absolute;
-	overflow: visible;
 	box-shadow: -10px -10px 15px rgba(0,0,0,0.05), 10px 10px 10px rgba(0,0,0,0.12);
+	overflow: visible;
 }
 
 .paperclip {
@@ -286,53 +283,6 @@ main {
 	background: #fff;
 }
 
-.loading:after {
-	content: '';
-	display: block;
-	width: 100%;
-	height: 100%;
-	position: absolute;
-	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' width='72' height='72'%3E%3Cstyle type='text/css'%3E%3C!%5BCDATA%5B @keyframes loader_snake %7B to %7B stroke-dashoffset: 0; %7D %7D%0A%5D%5D%3E%3C/style%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke='%23fff' stroke-width='12' fill='none' opacity='0.1' d='M36,36 6,21 36,6 66,21 66,51 36,66 36,36 66,21 66,51 36,66 6,51 6,21 36,36 36,66 6,51 6,21 36,6 66,21z'%3E%3C/path%3E%3Cpath stroke-dasharray='291' stroke-dashoffset='582' stroke-linecap='round' stroke-linejoin='round' stroke='%23fff' stroke-width='12' fill='none' d='M36,36 6,21 36,6 66,21 66,51 36,66 36,36 66,21 66,51 36,66 6,51 6,21 36,36 36,66 6,51 6,21 36,6 66,21z' style='animation: loader_snake 1.5s linear infinite;'%3E%3C/path%3E%3C/svg%3E") no-repeat 50% rgba(38, 132, 195, 0.92);
-	top: 0;
-	left: 0;
-	z-index: 999;
-}
-
-footer {
-	color: var(--color-primary);
-	text-align: center;
-	font-family: sans-serif;
-	padding: 12px;
-}
-
-
-@media (prefers-reduced-motion: reduce) {
-	.loading:after {
-		background-image: none;
-	}
-}
-
-
-#char-warning {
-	color: #ffdd57;
-	font-family: sans-serif;
-	font-size: 12px;
-	text-align: center;
-	padding: 6px 8px;
-}
-
-#sprite-error {
-	color: #ff6b6b;
-	font-family: sans-serif;
-	font-size: 13px;
-	text-align: center;
-	padding: 8px;
-	background: rgba(255,255,255,0.1);
-	border-radius: 6px;
-	margin-top: 8px;
-}
-
-
 /* Общий стиль стикера-закладки */
 .sticker-btn {
 	position: absolute;
@@ -366,6 +316,29 @@ footer {
 	visibility: hidden;
 }
 
+#download-btn {
+	top: 60px;
+}
+
+#download-btn::before {
+	display: none;
+}
+
+#pdf-btn {
+	top: 150px;
+}
+
+#pdf-btn::before {
+	display: none;
+}
+
+#zip-btn {
+	top: 240px;
+}
+
+#zip-btn::before {
+	display: none;
+}
 
 /* Стикеры пагинации */
 #page-prev {
@@ -377,33 +350,49 @@ footer {
 	right: -42px;
 }
 
-
-#download-btn {
-	top: 60px;
+#char-warning {
+	color: #ffdd57;
+	font-family: sans-serif;
+	font-size: 12px;
+	text-align: center;
+	padding: 6px 8px;
 }
 
-#download-btn::before {
-	display: none;
+#sprite-error {
+	color: #ff6b6b;
+	font-family: sans-serif;
+	font-size: 13px;
+	text-align: center;
+	padding: 8px;
+	background: rgba(255,255,255,0.1);
+	border-radius: 6px;
+	margin-top: 8px;
 }
 
-
-#pdf-btn {
-	top: 150px;
+.loading:after {
+	content: '';
+	display: block;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' width='72' height='72'%3E%3Cstyle type='text/css'%3E%3C!%5BCDATA%5B @keyframes loader_snake %7B to %7B stroke-dashoffset: 0; %7D %7D%0A%5D%5D%3E%3C/style%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke='%23fff' stroke-width='12' fill='none' opacity='0.1' d='M36,36 6,21 36,6 66,21 66,51 36,66 36,36 66,21 66,51 36,66 6,51 6,21 36,36 36,66 6,51 6,21 36,6 66,21z'%3E%3C/path%3E%3Cpath stroke-dasharray='291' stroke-dashoffset='582' stroke-linecap='round' stroke-linejoin='round' stroke='%23fff' stroke-width='12' fill='none' d='M36,36 6,21 36,6 66,21 66,51 36,66 36,36 66,21 66,51 36,66 6,51 6,21 36,36 36,66 6,51 6,21 36,6 66,21z' style='animation: loader_snake 1.5s linear infinite;'%3E%3C/path%3E%3C/svg%3E") no-repeat 50% rgba(38, 132, 195, 0.92);
+	top: 0;
+	left: 0;
+	z-index: 999;
 }
 
-#pdf-btn::before {
-	display: none;
+@media (prefers-reduced-motion: reduce) {
+	.loading:after {
+		background-image: none;
+	}
 }
 
-
-#zip-btn {
-	top: 240px;
+footer {
+	color: var(--color-primary);
+	text-align: center;
+	font-family: sans-serif;
+	padding: 12px;
 }
-
-#zip-btn::before {
-	display: none;
-}
-
 
 /* Хэндл bottom sheet — скрыт на десктопе */
 .sheet-handle {
@@ -654,7 +643,6 @@ footer {
 		bottom: auto;
 	}
 }
-
 
 /* Стиль textarea при перетаскивании файла */
 .dragover {

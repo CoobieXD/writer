@@ -44,7 +44,6 @@ let currentPages = [];
 let currentPageIndex = 0;
 let currentSeed = (Math.random() * 4294967296) >>> 0;
 
-
 // Кеш отрендеренных страниц (pageIndex → ImageBitmap)
 const pageCache = new Map();
 
@@ -67,6 +66,13 @@ const sendText = function() {
 	if (isProcessing) return;
 	if (!textEl.value.trim()) return;
 	isProcessing = true;
+
+	// Убрать предупреждение о символах и навигацию при новой генерации
+	hideWarning();
+	hidePagination();
+	pageCache.forEach(function(bmp) { if (bmp.close) bmp.close(); });
+	pageCache.clear();
+
 	const text = textEl.value;
 	const options = { seed: currentSeed };
 	if (window.location.search.indexOf('curv') !== -1) {
@@ -75,6 +81,7 @@ const sendText = function() {
 	const result = Writer.generateList(text, spriteData, options);
 	currentPages = result.pages;
 	currentPageIndex = 0;
+
 	// Предупреждение о неподдерживаемых символах
 	if (result.skippedChars.length > 0) {
 		showWarning('Символы без глифа пропущены: ' + result.skippedChars.join(' '));
@@ -104,41 +111,15 @@ const loadSprites = function(data) {
 		renderList(data);
 	}).catch(function(err) {
 		console.error(err);
+		showError('Ошибка загрузки спрайтов. Попробуйте обновить страницу.');
 		clipboardEl.classList.remove('loading');
-		// Рукописный плейсхолдер на листе при пустом textarea
-const PLACEHOLDER_TEXT = 'Привет! Это Писец — генератор рукописных конспектов.\n\nКак пользоваться:\n\t1. Введите или вставьте текст в поле слева\n\t2. Конспект появится здесь автоматически\n\t3. Нажмите "Скачать" чтобы сохранить как картинку, или "PDF" для всех страниц\n\nСоветы:\n\tCtrl+Enter — перегенерировать с новым почерком\n\tTab — вставить отступ в тексте\n\tМожно перетащить .txt файл прямо в поле ввода\n\nУдачи на парах :)';
-let placeholderRendered = false;
-
-const renderPlaceholder = function() {
-	const result = Writer.generateList(PLACEHOLDER_TEXT, spriteData, { seed: 42 });
-	const data = result.pages[0];
-	const needed = Object.keys(data).filter(function(name) { return !sprites.hasOwnProperty(name); });
-	if (needed.length === 0) {
-		renderPageToCanvas(data);
-		placeholderRendered = true;
-		return;
-	}
-	Promise.all(needed.map(function(name) {
-		return new Promise(function(resolve, reject) {
-			var img = new Image();
-			img.onload = function() { resolve(); };
-			img.onerror = function() { reject(); };
-			img.src = './assets/sprites/kate/' + dpi + 'dpi/' + name + '.png';
-			sprites[name] = img;
-		});
-	})).then(function() {
-		renderPageToCanvas(data);
-		placeholderRendered = true;
-	});
-};
-
-renderPlaceholder();
-document.body.classList.remove('loading');
+		document.body.classList.remove('loading');
 		writeBtn.disabled = false;
+		isProcessing = false;
 	});
 };
 
-// Рендер одной страницы на произвольный canvas
+// Рендер одной страницы на произвольный canvas (синхронный)
 const renderPageToCanvas = function(data, target) {
 	target = target || canvas;
 	const ctx = target.getContext('2d');
@@ -171,35 +152,7 @@ const renderList = function(data) {
 const showList = function() {
 	listEl.style.display = '';
 	clipboardEl.classList.remove('loading');
-	// Рукописный плейсхолдер на листе при пустом textarea
-const PLACEHOLDER_TEXT = 'Привет! Это Писец — генератор рукописных конспектов.\n\nКак пользоваться:\n\t1. Введите или вставьте текст в поле слева\n\t2. Конспект появится здесь автоматически\n\t3. Нажмите "Скачать" чтобы сохранить как картинку, или "PDF" для всех страниц\n\nСоветы:\n\tCtrl+Enter — перегенерировать с новым почерком\n\tTab — вставить отступ в тексте\n\tМожно перетащить .txt файл прямо в поле ввода\n\nУдачи на парах :)';
-let placeholderRendered = false;
-
-const renderPlaceholder = function() {
-	const result = Writer.generateList(PLACEHOLDER_TEXT, spriteData, { seed: 42 });
-	const data = result.pages[0];
-	const needed = Object.keys(data).filter(function(name) { return !sprites.hasOwnProperty(name); });
-	if (needed.length === 0) {
-		renderPageToCanvas(data);
-		placeholderRendered = true;
-		return;
-	}
-	Promise.all(needed.map(function(name) {
-		return new Promise(function(resolve, reject) {
-			var img = new Image();
-			img.onload = function() { resolve(); };
-			img.onerror = function() { reject(); };
-			img.src = './assets/sprites/kate/' + dpi + 'dpi/' + name + '.png';
-			sprites[name] = img;
-		});
-	})).then(function() {
-		renderPageToCanvas(data);
-		placeholderRendered = true;
-	});
-};
-
-renderPlaceholder();
-document.body.classList.remove('loading');
+	document.body.classList.remove('loading');
 	writeBtn.disabled = false;
 	isProcessing = false;
 
@@ -213,38 +166,7 @@ document.body.classList.remove('loading');
 	showZipBtn();
 };
 
-
-// Предупреждение о неподдерживаемых символах
-const showWarning = function(msg) {
-	let el = document.getElementById('char-warning');
-	if (!el) {
-		el = document.createElement('div');
-		el.id = 'char-warning';
-		clipboardEl.appendChild(el);
-	}
-	el.textContent = msg;
-	el.style.display = '';
-};
-
-const hideWarning = function() {
-	const el = document.getElementById('char-warning');
-	if (el) el.style.display = 'none';
-};
-
-// Сообщение об ошибке загрузки спрайтов
-const showError = function(msg) {
-	let el = document.getElementById('sprite-error');
-	if (!el) {
-		el = document.createElement('div');
-		el.id = 'sprite-error';
-		clipboardEl.appendChild(el);
-	}
-	el.textContent = msg;
-	el.style.display = '';
-};
-
-
-// Навигация по страницам
+// Навигация по страницам (без анимации)
 const goToPage = function(index) {
 	if (index < 0 || index >= currentPages.length) return;
 	currentPageIndex = index;
@@ -362,7 +284,6 @@ const createSticker = function(id, text) {
 	return el;
 };
 
-
 // Пагинация стикерами
 const showPagination = function() {
 	const prevBtn = createSticker('page-prev', '\u2190');
@@ -390,21 +311,6 @@ const updatePagination = function() {
 	prevBtn.disabled = currentPageIndex === 0;
 	nextBtn.disabled = currentPageIndex === currentPages.length - 1;
 };
-
-
-// Стикер скачивания
-const showDownloadBtn = function() {
-	const btn = createSticker('download-btn', 'Скачать');
-	btn.onclick = function(e) {
-		e.stopPropagation();
-		const link = document.createElement('a');
-		link.download = 'page-' + seedHash() + '-' + (currentPageIndex + 1) + '.png';
-		link.href = canvas.toDataURL('image/png');
-		link.click();
-	};
-	btn.style.display = '';
-};
-
 
 // Стикер PDF
 const showPdfBtn = function() {
@@ -455,6 +361,18 @@ const showPdfBtn = function() {
 	btn.style.display = '';
 };
 
+// Стикер скачивания
+const showDownloadBtn = function() {
+	const btn = createSticker('download-btn', 'Скачать');
+	btn.onclick = function(e) {
+		e.stopPropagation();
+		const link = document.createElement('a');
+		link.download = 'page-' + seedHash() + '-' + (currentPageIndex + 1) + '.png';
+		link.href = canvas.toDataURL('image/png');
+		link.click();
+	};
+	btn.style.display = '';
+};
 
 // Стикер ZIP
 const showZipBtn = function() {
@@ -510,6 +428,35 @@ const showZipBtn = function() {
 	btn.style.display = '';
 };
 
+// Предупреждение о неподдерживаемых символах
+const showWarning = function(msg) {
+	let el = document.getElementById('char-warning');
+	if (!el) {
+		el = document.createElement('div');
+		el.id = 'char-warning';
+		clipboardEl.appendChild(el);
+	}
+	el.textContent = msg;
+	el.style.display = '';
+};
+
+const hideWarning = function() {
+	const el = document.getElementById('char-warning');
+	if (el) el.style.display = 'none';
+};
+
+// Сообщение об ошибке загрузки спрайтов
+const showError = function(msg) {
+	let el = document.getElementById('sprite-error');
+	if (!el) {
+		el = document.createElement('div');
+		el.id = 'sprite-error';
+		clipboardEl.appendChild(el);
+	}
+	el.textContent = msg;
+	el.style.display = '';
+};
+
 // "Перевести в рукопись" — сбрасывает seed
 writeBtn.addEventListener('click', function() {
 	currentSeed = (Math.random() * 4294967296) >>> 0;
@@ -563,100 +510,6 @@ textEl.addEventListener('input', function() {
 		sendText();
 	}, delay);
 });
-
-
-
-// Bottom sheet — перетаскивание на мобайле
-(function() {
-	const sheetEl = document.querySelector('.section.right');
-	const handleEl = document.querySelector('.sheet-handle');
-	if (!sheetEl || !handleEl) return;
-
-	const SHEET_HEIGHT_VH = 65;
-	const HANDLE_VISIBLE_PX = 90;
-	let sheetExpanded = true;
-	let dragStartY = 0;
-	let dragStartTranslate = 0;
-	let isDragging = false;
-	let dragStartTime = 0;
-
-	const getSheetHeight = function() {
-		return window.innerHeight * SHEET_HEIGHT_VH / 100;
-	};
-
-	const getCollapsedTranslate = function() {
-		return getSheetHeight() - HANDLE_VISIBLE_PX;
-	};
-
-	const setTransform = function(y, animate) {
-		if (animate) {
-			sheetEl.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
-		} else {
-			sheetEl.style.transition = 'none';
-		}
-		sheetEl.style.transform = 'translateY(' + y + 'px)';
-	};
-
-	const expandSheet = function() {
-		sheetExpanded = true;
-		setTransform(0, true);
-	};
-
-	const collapseSheet = function() {
-		sheetExpanded = false;
-		setTransform(getCollapsedTranslate(), true);
-	};
-
-	// Обработка касаний на хэндле
-	handleEl.addEventListener('touchstart', function(e) {
-		if (!isMobile()) return;
-		isDragging = true;
-		dragStartY = e.touches[0].clientY;
-		dragStartTime = Date.now();
-		// Текущий translateY
-		var matrix = new DOMMatrix(getComputedStyle(sheetEl).transform);
-		dragStartTranslate = matrix.m42 || 0;
-		sheetEl.style.transition = 'none';
-	}, { passive: true });
-
-	handleEl.addEventListener('touchmove', function(e) {
-		if (!isDragging || !isMobile()) return;
-		var currentY = e.touches[0].clientY;
-		var delta = currentY - dragStartY;
-		var newTranslate = dragStartTranslate + delta;
-		// Clamp: не выше 0 (полностью раскрыт), не ниже collapsedTranslate
-		var maxTranslate = getCollapsedTranslate();
-		newTranslate = Math.max(0, Math.min(newTranslate, maxTranslate));
-		sheetEl.style.transform = 'translateY(' + newTranslate + 'px)';
-	}, { passive: true });
-
-	handleEl.addEventListener('touchend', function(e) {
-		if (!isDragging || !isMobile()) return;
-		isDragging = false;
-		var endY = e.changedTouches[0].clientY;
-		var delta = endY - dragStartY;
-		var elapsed = Date.now() - dragStartTime;
-		var velocity = Math.abs(delta) / elapsed; // px/ms
-		var threshold = getSheetHeight() * 0.3;
-
-		// Быстрый свайп (>0.5 px/ms) или прошли порог 30%
-		if (velocity > 0.5 || Math.abs(delta) > threshold) {
-			if (delta > 0) collapseSheet();
-			else expandSheet();
-		} else {
-			// Вернуть в предыдущее состояние
-			if (sheetExpanded) expandSheet();
-			else collapseSheet();
-		}
-	});
-
-	// Тап по хэндлу — переключить состояние
-	handleEl.addEventListener('click', function() {
-		if (!isMobile()) return;
-		if (sheetExpanded) collapseSheet();
-		else expandSheet();
-	});
-})();
 
 // Подложка-затемнение для свайпа (страница «снизу»)
 const swipeUnderlay = document.createElement('div');
@@ -772,3 +625,95 @@ textEl.addEventListener('drop', function(e) {
 	};
 	reader.readAsText(file);
 });
+
+// Bottom sheet — перетаскивание на мобайле
+(function() {
+	const sheetEl = document.querySelector('.section.right');
+	const handleEl = document.querySelector('.sheet-handle');
+	if (!sheetEl || !handleEl) return;
+
+	const SHEET_HEIGHT_VH = 65;
+	const HANDLE_VISIBLE_PX = 90;
+	let sheetExpanded = true;
+	let dragStartY = 0;
+	let dragStartTranslate = 0;
+	let isDragging = false;
+	let dragStartTime = 0;
+
+	const getSheetHeight = function() {
+		return window.innerHeight * SHEET_HEIGHT_VH / 100;
+	};
+
+	const getCollapsedTranslate = function() {
+		return getSheetHeight() - HANDLE_VISIBLE_PX;
+	};
+
+	const setTransform = function(y, animate) {
+		if (animate) {
+			sheetEl.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+		} else {
+			sheetEl.style.transition = 'none';
+		}
+		sheetEl.style.transform = 'translateY(' + y + 'px)';
+	};
+
+	const expandSheet = function() {
+		sheetExpanded = true;
+		setTransform(0, true);
+	};
+
+	const collapseSheet = function() {
+		sheetExpanded = false;
+		setTransform(getCollapsedTranslate(), true);
+	};
+
+	// Обработка касаний на хэндле
+	handleEl.addEventListener('touchstart', function(e) {
+		if (!isMobile()) return;
+		isDragging = true;
+		dragStartY = e.touches[0].clientY;
+		dragStartTime = Date.now();
+		// Текущий translateY
+		var matrix = new DOMMatrix(getComputedStyle(sheetEl).transform);
+		dragStartTranslate = matrix.m42 || 0;
+		sheetEl.style.transition = 'none';
+	}, { passive: true });
+
+	handleEl.addEventListener('touchmove', function(e) {
+		if (!isDragging || !isMobile()) return;
+		var currentY = e.touches[0].clientY;
+		var delta = currentY - dragStartY;
+		var newTranslate = dragStartTranslate + delta;
+		// Clamp: не выше 0 (полностью раскрыт), не ниже collapsedTranslate
+		var maxTranslate = getCollapsedTranslate();
+		newTranslate = Math.max(0, Math.min(newTranslate, maxTranslate));
+		sheetEl.style.transform = 'translateY(' + newTranslate + 'px)';
+	}, { passive: true });
+
+	handleEl.addEventListener('touchend', function(e) {
+		if (!isDragging || !isMobile()) return;
+		isDragging = false;
+		var endY = e.changedTouches[0].clientY;
+		var delta = endY - dragStartY;
+		var elapsed = Date.now() - dragStartTime;
+		var velocity = Math.abs(delta) / elapsed; // px/ms
+		var threshold = getSheetHeight() * 0.3;
+
+		// Быстрый свайп (>0.5 px/ms) или прошли порог 30%
+		if (velocity > 0.5 || Math.abs(delta) > threshold) {
+			if (delta > 0) collapseSheet();
+			else expandSheet();
+		} else {
+			// Вернуть в предыдущее состояние
+			if (sheetExpanded) expandSheet();
+			else collapseSheet();
+		}
+	});
+
+	// Тап по хэндлу — переключить состояние
+	handleEl.addEventListener('click', function() {
+		if (!isMobile()) return;
+		if (sheetExpanded) collapseSheet();
+		else expandSheet();
+	});
+})();
