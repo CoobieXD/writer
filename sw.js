@@ -1,14 +1,19 @@
-const CACHE_VERSION = 2;
+const CACHE_VERSION = 3;
 const CACHE_NAME = 'writer-v' + CACHE_VERSION;
 
 const PRECACHE_URLS = [
 	'./',
 	'index.html',
 	'css/main.css',
-	'js/sprite-data.js',
+	'data/sprite-data.json',
 	'js/writer.js',
+	'js/state.js',
+	'js/renderer.js',
+	'js/export.js',
+	'js/navigation.js',
+	'js/ui.js',
+	'js/render-worker.js',
 	'js/main.js',
-	'img/list.png',
 	'favicon-16x16.png',
 	'favicon-32x32.png'
 ];
